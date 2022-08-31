@@ -44,26 +44,56 @@ app.MapGet("/api/products", () => {
 })
 .Produces(200, typeof(ProductDto[]));
 
-//Get By ID Enpoint
+//Get By ID Endpoint
 app.MapGet("/api/products{id}", (int id) => {
     var results = products.FirstOrDefault(x => x.Id == id);
-    if( results == null) {    
+    if(results == null) {    
         return Results.NotFound();
-     }
-     return Results.Ok(results);
+    }
+    return Results.Ok(results);
 })
  .WithName("GetById");
 
 //Create Product Endpoint
 app.MapPost("/api/products/", (ProductDto product) => {
-    
+    if(product.Id == 0 || product.ProductName == null || product.Description == null || product.Price == 0) {
+        return Results.BadRequest();
+    }
     product.Id = myId++;
     products.Add(product);
-
     return Results.CreatedAtRoute("GetById", new{id = product.Id}, product);
 })
 .Produces(400)
 .Produces(200, typeof(ProductDto));
+
+//Update Product Endpoint
+app.MapPut("/api/products{id}", (int id, ProductDto product) => {
+    if(product.Id == 0 || product.ProductName == null || product.Description == null || product.Price <= 0) {
+        return Results.BadRequest();
+    }
+
+    var current = Results.CreatedAtRoute("GetById", new {id = product.Id == id}, product);
+    products.Remove(product);
+    products.Add(product);
+    return current;
+});
+
+//Delete Product Endpoint
+app.MapDelete("/api/products{id}", (int id, ProductDto product ) => {
+    var results = products.FirstOrDefault(x => x.Id == id);
+    if(id == product.Id) {    
+        products.Remove(product);
+    }
+    return Results.NotFound();
+})
+.Produces(200, typeof(ProductDto[]));
+
+
+
+
+
+
+
 
 //Run App Command
 app.Run();
