@@ -72,28 +72,29 @@ app.MapPut("/api/products{id}", (int id, ProductDto product) => {
         return Results.BadRequest();
     }
 
+    new ProductDto {
+        ProductName = product.ProductName,
+        Description = product.Description,
+        Price = product.Price,
+    };
     var current = Results.CreatedAtRoute("GetById", new {id = product.Id == id}, product);
     products.Remove(product);
     products.Add(product);
     return current;
 });
 
-//Delete Product Endpoint
+/*Delete Product Endpoint
 app.MapDelete("/api/products{id}", (int id, ProductDto product) => {
-    var results = products.FirstOrDefault(x => x.Id == id);
-    if(results.Id == product.Id) {    
+       var results = products.FirstOrDefault(x => x.Id == id);
+
+    if(results.Equals(product.Id) ) {    
         products.Remove(product);
     }
+
     return Results.Ok();
 })
 .Produces(200, typeof(ProductDto[]));
-
-
-
-
-
-
-
+*/
 
 //Run App Command
 app.Run();
