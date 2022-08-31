@@ -16,21 +16,22 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 //Product List
+int myId = 1;
 var products = new List<ProductDto> {
     new ProductDto {
-        Id = 1,
+        Id = myId++,
         ProductName = "Monster Energy Drink",
         Description = "caffeine beverage",
         Price = 3.09m
     },
     new ProductDto {
-        Id = 2,
+        Id = myId++,
         ProductName = "Pencil Pack",
         Description = "pack of 5 mechanical pencils",
         Price = 6.11m
     },
     new ProductDto {
-        Id = 3,
+        Id = myId++,
         ProductName = "M&M's",
         Description = "regular size pack of m&m's",
         Price = 1.68m
@@ -38,13 +39,31 @@ var products = new List<ProductDto> {
 };
 
 //Get All Products
-app.MapGet("/api/GetAll", () =>
-{
+app.MapGet("/api/products", () => {
     return products;
 })
 .Produces(200, typeof(ProductDto[]));
 
+//Get By ID Enpoint
+app.MapGet("/api/products{id}", (int id) => {
+    var results = products.FirstOrDefault(x => x.Id == id);
+    if( results == null) {    
+        return Results.NotFound();
+     }
+     return Results.Ok(results);
+})
+ .WithName("GetById");
 
+//Create Product Endpoint
+app.MapPost("/api/products/", (ProductDto product) => {
+    
+    product.Id = myId++;
+    products.Add(product);
+
+    return Results.CreatedAtRoute("GetById", new{id = product.Id}, product);
+})
+.Produces(400)
+.Produces(200, typeof(ProductDto));
 
 //Run App Command
 app.Run();
