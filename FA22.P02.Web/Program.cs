@@ -52,11 +52,11 @@ app.MapGet("/api/products{id}", (int id) => {
     }
     return Results.Ok(results);
 })
- .WithName("GetById");
+.WithName("GetById");
 
 //Create Product Endpoint
 app.MapPost("/api/products/", (ProductDto product) => {
-    if(product.Id == 0 || product.ProductName == null || product.Description == null || product.Price == 0) {
+    if(product.Id == 0 || product.ProductName == null || product.Description == null || product.Price <= 0) {
         return Results.BadRequest();
     }
     product.Id = myId++;
@@ -79,12 +79,12 @@ app.MapPut("/api/products{id}", (int id, ProductDto product) => {
 });
 
 //Delete Product Endpoint
-app.MapDelete("/api/products{id}", (int id, ProductDto product ) => {
+app.MapDelete("/api/products{id}", (int id, ProductDto product) => {
     var results = products.FirstOrDefault(x => x.Id == id);
-    if(id == product.Id) {    
+    if(results.Id == product.Id) {    
         products.Remove(product);
     }
-    return Results.NotFound();
+    return Results.Ok();
 })
 .Produces(200, typeof(ProductDto[]));
 
